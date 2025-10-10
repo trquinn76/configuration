@@ -2,21 +2,21 @@ package io.github.trquinn76.configuration;
 
 import java.util.Objects;
 
-public record ConfigKeys(String key, String commandLineParam, String commandLineProperty, String envVariable,
+public record ConfigKeys(String key, String commandLineParam, String commandLineProperty, String environmentVariable,
         String configFileProperty, Object defaultValue) {
     
     public ConfigKeys {
         Objects.requireNonNull(key);
         if (Utils.isNullOrEmpty(commandLineParam) &&
                 Utils.isNullOrEmpty(commandLineProperty) &&
-                Utils.isNullOrEmpty(envVariable) &&
+                Utils.isNullOrEmpty(environmentVariable) &&
                 Utils.isNullOrEmpty(configFileProperty) &&
                 defaultValue == null) {
             throw new ConfigurationException("Config Keys require at least one of Command Line Paramater, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
         }
     }
     
-    public static Builder init(String key) {
+    public static Builder newKey(String key) {
         Objects.requireNonNull(key);
         if (key.isBlank()) {
             throw new ConfigurationException("Configuration key may not be empty or null.");
