@@ -2,17 +2,18 @@ package io.github.trquinn76.configuration;
 
 import java.util.Objects;
 
-public record ConfigKeys(String key, String commandLineParam, String commandLineProperty, String environmentVariable,
+public record ConfigKeys(String key, String commandLineParamShort, String commandLineParam, String commandLineProperty, String environmentVariable,
         String configFileProperty, Object defaultValue) {
     
     public ConfigKeys {
         Objects.requireNonNull(key);
-        if (Utils.isNullOrEmpty(commandLineParam) &&
+        if (Utils.isNullOrEmpty(commandLineParamShort) &&
+                Utils.isNullOrEmpty(commandLineParam) &&
                 Utils.isNullOrEmpty(commandLineProperty) &&
                 Utils.isNullOrEmpty(environmentVariable) &&
                 Utils.isNullOrEmpty(configFileProperty) &&
                 defaultValue == null) {
-            throw new ConfigurationException("Config Keys require at least one of Command Line Paramater, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
+            throw new ConfigurationException("Config Keys require at least one of Command Line Parameter, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
         }
     }
     
@@ -27,6 +28,7 @@ public record ConfigKeys(String key, String commandLineParam, String commandLine
 
     public static class Builder {
         String key = null;
+        String commandLineParamShort = null;
         String commandLineParam = null;
         String commandLineProperty = null;
         String envVariable = null;
@@ -35,6 +37,11 @@ public record ConfigKeys(String key, String commandLineParam, String commandLine
         
         public Builder key(String key) {
             this.key = key;
+            return this;
+        }
+        
+        public Builder cmdLineParamShort(String cmdLineParamShort) {
+            this.commandLineParamShort = cmdLineParamShort;
             return this;
         }
         
@@ -64,7 +71,7 @@ public record ConfigKeys(String key, String commandLineParam, String commandLine
         }
         
         public ConfigKeys build() {
-            return new ConfigKeys(key, commandLineParam, commandLineProperty, envVariable, configFileProperty, defaultValue);
+            return new ConfigKeys(key, commandLineParamShort, commandLineParam, commandLineProperty, envVariable, configFileProperty, defaultValue);
         }
     }
 }

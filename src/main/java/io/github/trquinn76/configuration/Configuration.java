@@ -1,9 +1,13 @@
 package io.github.trquinn76.configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,6 +15,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import org.json.simple.parser.JSONParser;
 
 public class Configuration {
     
@@ -20,7 +26,7 @@ public class Configuration {
     
     private static Set<ConfigKeys> keySet = new TreeSet<>();
     
-    private static List<String> propertyFileList = new ArrayList<>();
+    private static List<File> propertyFileList = new ArrayList<>();
     
     private static List<String> commandLineArgs = new ArrayList<>();
     
@@ -30,13 +36,21 @@ public class Configuration {
         commandLineArgs.addAll(Arrays.asList(args));
     }
     
-    public static void addPropertyFile(String fileName) {
-        propertyFileList.add(fileName);
+    public static void appendPropertyFile(File propertyFile) {
+        propertyFileList.addLast(propertyFile);
     }
     
-    public static void setPropertyFiles(String[] propertyFiles) {
+    public static void prependPropertyFile(File propertyFile) {
+        propertyFileList.addFirst(propertyFile);
+    }
+    
+    public static void insertPropertyFile(int index, File propertyFile) {
+        propertyFileList.add(index, propertyFile);
+    }
+    
+    public static void setPropertyFiles(Collection<File> propertyFiles) {
         propertyFileList.clear();
-        propertyFileList.addAll(List.of(propertyFiles));
+        propertyFileList.addAll(propertyFiles);
     }
     
     public static void addKey(ConfigKeys key) {
@@ -44,6 +58,9 @@ public class Configuration {
         keySet.forEach((existingKey) -> {
             if (key.key().equals(existingKey.key())) {
                 throw new ConfigurationException("Attempting to add key " + key + " which duplicates the Key of " + existingKey);
+            }
+            if (key.commandLineParamShort().equals(existingKey.commandLineParamShort())) {
+                throw new ConfigurationException("Attempting to add key " + key + " which duplicates the Command Line Param Short of " + existingKey);
             }
             if (key.commandLineParam().equals(existingKey.commandLineParam())) {
                 throw new ConfigurationException("Attempting to add key " + key + " which duplicates the Command Line Param of " + existingKey);
@@ -91,7 +108,7 @@ public class Configuration {
     
     private Object getValue(String key) {
         ConfigKeys configKeys = keySet.stream().filter((configKey) -> configKey.key().equals(key)).findFirst().orElseThrow();
-        String commandLineParam = getCommandLineArgument(configKeys.commandLineParam());
+        String commandLineParam = getCommandLineArgument(configKeys.commandLineParamShort(), configKeys.commandLineParam());
         if (commandLineParam != null && !commandLineParam.isBlank()) {
             return commandLineParam;
         }
@@ -103,10 +120,28 @@ public class Configuration {
         if (envValue != null && !envValue.isBlank()) {
             return envValue;
         }
-        for (Properties properties : propertyFileList) {
-            String value = properties.getProperty(configKeys.configFileProperty());
-            if (value != null && !value.isBlank()) {
-                return value;
+        for (File propertyFile : generatePropertyFilesList()) {
+            if (propertyFile.exists()) {
+                if (propertyFile.getName().endsWith(".json")) {
+                    JSONParser parser = new JSONParser();
+                }
+                else if (propertyFile.getName().endsWith(".yaml") || propertyFile.getName().endsWith(".yml")) {
+
+                }
+                else {
+                    // else assume it is a standard java Properties file.
+                    try {
+                        Properties properties = new Properties();
+                        properties.load(new FileInputStream(propertyFile));
+                        String value = properties.getProperty(configKeys.configFileProperty());
+                        if (value != null && !value.isBlank()) {
+                            return value;
+                        }
+                    }
+                    catch (IOException ioe) {
+                        throw new ConfigurationException("Failed to read Configuration file " + propertyFile.getName(), ioe);
+                    }
+                }
             }
         }
         if (configKeys.defaultValue() != null) {
@@ -123,10 +158,13 @@ public class Configuration {
         throw new ConfigurationException("Value for key " + key + " is not of type " + clazz.getCanonicalName());
     }
     
-    private String getCommandLineArgument(String commandLineArgument) {
-        if (commandLineArgument == null || commandLineArgument.isBlank()) {
+    private String getCommandLineArgument(String commandLineArgumentShort, String commandLineArgument) {
+        if (commandLineArgumentShort == null || commandLineArgumentShort.isBlank() &&
+                commandLineArgument == null || commandLineArgument.isBlank()) {
             return null;
         }
+        
+        List<String> keys = List.of( commandLineArgumentShort, commandLineArgument );
         
         List<String> arguments;
         
@@ -138,12 +176,38 @@ public class Configuration {
             arguments = new ArrayList<>(commandLineArgs);
         }
         
-        
-        int idx = arguments.indexOf(commandLineArgument);
-        if (idx > -1) {
-            return arguments.get(idx + 1);
+        for (String key : keys) {
+            int idx = arguments.indexOf(key);
+            if (idx > -1) {
+                return arguments.get(idx + 1);
+            }
         }
         
         return null;
+    }
+    
+    private List<File> generatePropertyFilesList() {
+        List<File> propertyFiles = new ArrayList<>(propertyFileList);
+        File userSetPropertyFile = null;
+        
+        ConfigKeys configFileKey = keySet.stream().filter((configKey) -> configKey.key().equals("configFile")).findFirst().orElseThrow();
+        String commandLineParam = getCommandLineArgument(configFileKey.commandLineParamShort(), configFileKey.commandLineParam());
+        if (commandLineParam != null && !commandLineParam.isBlank()) {
+            userSetPropertyFile = new File(commandLineParam);
+        }
+        String commandLineProperty = System.getProperty(configFileKey.commandLineProperty());
+        if (commandLineProperty != null && !commandLineProperty.isBlank()) {
+            userSetPropertyFile = new File(commandLineProperty);
+        }
+        String envValue = System.getenv(configFileKey.environmentVariable());
+        if (envValue != null && !envValue.isBlank()) {
+            userSetPropertyFile = new File(envValue);
+        }
+        
+        if (userSetPropertyFile != null) {
+            propertyFiles.addFirst(userSetPropertyFile);
+        }
+        
+        return propertyFiles;
     }
 }
