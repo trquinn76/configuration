@@ -15,8 +15,6 @@ group = 'io.github.trquinn76'
 version = '1.0.0'
 
 dependencies {
-    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
 }
 
 java {

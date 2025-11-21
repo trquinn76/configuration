@@ -2,22 +2,25 @@ package io.github.trquinn76.configuration;
 
 import java.util.Objects;
 
-public record ConfigKeys(String key, String commandLineParamShort, String commandLineParam, String commandLineProperty, String environmentVariable,
-        String configFileProperty, Object defaultValue) {
+public record ConfigKeys(String key, 
+        CmdLineArg commandLineArgument,
+        String commandLineProperty, 
+        String environmentVariable,
+        String configFileProperty, 
+        Object defaultValue) {
     
     public ConfigKeys {
         Objects.requireNonNull(key);
-        if (Utils.isNullOrEmpty(commandLineParamShort) &&
-                Utils.isNullOrEmpty(commandLineParam) &&
+        if (Objects.isNull(commandLineArgument) &&
                 Utils.isNullOrEmpty(commandLineProperty) &&
                 Utils.isNullOrEmpty(environmentVariable) &&
                 Utils.isNullOrEmpty(configFileProperty) &&
                 defaultValue == null) {
-            throw new ConfigurationException("Config Keys require at least one of Command Line Parameter, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
+            throw new ConfigurationException("Config Keys require at least one of Command Line Argument, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
         }
     }
     
-    public static Builder newKey(String key) {
+    public static Builder newKeyBuilder(String key) {
         Objects.requireNonNull(key);
         if (key.isBlank()) {
             throw new ConfigurationException("Configuration key may not be empty or null.");
@@ -28,8 +31,8 @@ public record ConfigKeys(String key, String commandLineParamShort, String comman
 
     public static class Builder {
         String key = null;
-        String commandLineParamShort = null;
-        String commandLineParam = null;
+        String commandLineArg = null;
+        String commandLineArgShort = null;
         String commandLineProperty = null;
         String envVariable = null;
         String configFileProperty = null;
@@ -40,13 +43,15 @@ public record ConfigKeys(String key, String commandLineParamShort, String comman
             return this;
         }
         
-        public Builder cmdLineParamShort(String cmdLineParamShort) {
-            this.commandLineParamShort = cmdLineParamShort;
+        // sets a Command Line Argument (should be descriptive name)
+        public Builder cmdLineArgument(String cmdLineArgument) {
+            this.commandLineArg = cmdLineArgument;
             return this;
         }
         
-        public Builder cmdLineParam(String cmdLineParam) {
-            this.commandLineParam = cmdLineParam;
+        // sets a short Command Line Argument (should be short and concise)
+        public Builder cmdLineArgumentShort(String cmdLineArgumentShort) {
+            this.commandLineArgShort = cmdLineArgumentShort;
             return this;
         }
         
@@ -71,7 +76,11 @@ public record ConfigKeys(String key, String commandLineParamShort, String comman
         }
         
         public ConfigKeys build() {
-            return new ConfigKeys(key, commandLineParamShort, commandLineParam, commandLineProperty, envVariable, configFileProperty, defaultValue);
+            CmdLineArg cmdLineArg = null;
+            if (!Utils.isNullOrEmpty(commandLineArg)) {
+                cmdLineArg = new CmdLineArg(commandLineArg, commandLineArgShort);
+            }
+            return new ConfigKeys(key, cmdLineArg, commandLineProperty, envVariable, configFileProperty, defaultValue);
         }
     }
 }
