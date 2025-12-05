@@ -48,19 +48,19 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'io.github.trquinn76'
-            artifactId = 'classification-aus'
+            artifactId = 'configuration'
 
             from components.java
 
             pom {
-                name = 'Australian Classification Scheme'
-                description = "Representation of Australian Protective Markings, which are immutable and suitable for use as DTO's"
+                name = 'Configuration'
+                description = "A library for getting configuratio values"
                 inceptionYear = "2025"
-                url = "https://github.com/trquinn76/classification"
+                url = "https://github.com/trquinn76/configuration"
                 licenses {
                     license {
                         name = 'MIT Licence'
-                        url = 'https://github.com/trquinn76/classification/blob/master/LICENSE'
+                        url = 'https://github.com/trquinn76/configuration/blob/master/LICENSE'
                     }
                 }
                 developers {
@@ -71,9 +71,9 @@ publishing {
                     }
                 }
                 scm {
-                    url = 'http://github.com/trquinn/classification'
-                    connection = 'scm:git:https://github.com/trquinn76/classification.git'
-                    developerConnection = 'scm:git:ssh://github.com/trquinn76/classification.git'
+                    url = 'http://github.com/trquinn/configuration'
+                    connection = 'scm:git:https://github.com/trquinn76/configuration.git'
+                    developerConnection = 'scm:git:ssh://github.com/trquinn76/configuration.git'
                 }
             }
         }

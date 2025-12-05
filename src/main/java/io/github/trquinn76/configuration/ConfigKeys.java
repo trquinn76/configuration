@@ -7,7 +7,7 @@ public record ConfigKeys(String key,
         String commandLineProperty, 
         String environmentVariable,
         String configFileProperty, 
-        Object defaultValue) {
+        String defaultValue) {
     
     public ConfigKeys {
         Objects.requireNonNull(key);
@@ -30,13 +30,13 @@ public record ConfigKeys(String key,
     }
 
     public static class Builder {
-        String key = null;
-        String commandLineArg = null;
-        String commandLineArgShort = null;
-        String commandLineProperty = null;
-        String envVariable = null;
-        String configFileProperty = null;
-        Object defaultValue = null;
+        private String key = null;
+        private String commandLineArg = null;
+        private String commandLineArgShort = null;
+        private String commandLineProperty = null;
+        private String envVariable = null;
+        private String configFileProperty = null;
+        private String defaultValue = null;
         
         public Builder key(String key) {
             this.key = key;
@@ -70,7 +70,7 @@ public record ConfigKeys(String key,
             return this;
         }
         
-        public Builder defaultValue(Object defaultValue) {
+        public Builder defaultValue(String defaultValue) {
             this.defaultValue = defaultValue;
             return this;
         }
