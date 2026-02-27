@@ -21,10 +21,10 @@ class ConfigurationTest {
 		String[] args = {"alpha", "apple", "beta", "true", "gamma", "42", "delta", "1.11"};
 		Configuration.storeCommandLineArgs(args);
 		
-		Configuration.addKey(ConfigKeys.newKeyBuilder("alpha").cmdLineArgument("alpha").build());
-		Configuration.addKey(ConfigKeys.newKeyBuilder("beta").cmdLineArgument("beta").build());
-		Configuration.addKey(ConfigKeys.newKeyBuilder("gamma").cmdLineArgument("gamma").build());
-		Configuration.addKey(ConfigKeys.newKeyBuilder("delta").cmdLineArgument("delta").build());
+		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("alpha").buildAndAddKey();
+		ConfigKey.newKeyBuilder("beta").cmdLineArgument("beta").buildAndAddKey();
+		ConfigKey.newKeyBuilder("gamma").cmdLineArgument("gamma").buildAndAddKey();
+		ConfigKey.newKeyBuilder("delta").cmdLineArgument("delta").buildAndAddKey();
 		
 		Configuration config = new Configuration();
 		
@@ -39,9 +39,9 @@ class ConfigurationTest {
 		String args[] = { "alpha", "NotInt", "beta", "NotDouble", "gamma", "NotBoolean" };
 		Configuration.storeCommandLineArgs(args);
 		
-		Configuration.addKey(ConfigKeys.newKeyBuilder("alpha").cmdLineArgument("alpha").build());
-		Configuration.addKey(ConfigKeys.newKeyBuilder("beta").cmdLineArgument("beta").build());
-		Configuration.addKey(ConfigKeys.newKeyBuilder("gamma").cmdLineArgument("gamma").build());
+		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("alpha").buildAndAddKey();
+		ConfigKey.newKeyBuilder("beta").cmdLineArgument("beta").buildAndAddKey();
+		ConfigKey.newKeyBuilder("gamma").cmdLineArgument("gamma").buildAndAddKey();
 		
 		Configuration config = new Configuration();
 		
@@ -52,11 +52,39 @@ class ConfigurationTest {
 	
 	@Test
 	void noKeyTest() {
-		Configuration.addKey(ConfigKeys.newKeyBuilder("alpha").cmdLineArgument("alpha").configFileProp("alpha").build());
+		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("alpha").configFileProp("alpha").buildAndAddKey();
 		
 		Configuration config = new Configuration();
 		
 		assertThrows(NoSuchElementException.class, () -> config.get("NonExistentKey"));
 		assertThrows(ConfigurationException.class, () -> config.get("alpha"));
+	}
+	
+	@Test
+	void fromPropertiesFileTest() {
+		ConfigKey.newKeyBuilder("letters").configFileProp("alphabet").buildAndAddKey();
+		ConfigKey.newKeyBuilder("fantasy").configFileProp("rumple").buildAndAddKey();
+		
+		Configuration.appendPropertyFile("test.properties");
+		
+		Configuration config = new Configuration();
+		
+		assertEquals("soup", config.get("letters"));
+		assertEquals("stiltskin", config.get("fantasy"));
+	}
+	
+	@Test
+	void propertyFileFromConfigTest() {
+		Configuration.appendPropertyFile("test.properties");
+		
+		System.setProperty("configFile", "alternative.properties");
+		
+		ConfigKey.newKeyBuilder("one").configFileProp("alphabet").buildAndAddKey();
+		ConfigKey.newKeyBuilder("two").configFileProp("altkeyone").buildAndAddKey();
+		
+		Configuration config = new Configuration();
+		
+		assertEquals("soup", config.get("one"));
+		assertEquals("alpha", config.get("two"));
 	}
 }

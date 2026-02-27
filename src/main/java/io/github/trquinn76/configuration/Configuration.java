@@ -18,7 +18,7 @@ import java.util.Set;
 
 public class Configuration {
 
-	private static Set<ConfigKeys> keySet;
+	private static Set<ConfigKey> keySet;
 	private static List<String> propertyFileList;
 	private static List<String> commandLineArgs;
 
@@ -26,7 +26,7 @@ public class Configuration {
 		keySet = new HashSet<>();
 		propertyFileList = new ArrayList<>();
 		commandLineArgs = new ArrayList<>();
-		Configuration.addKey(ConfigKeys.newKeyBuilder("configFile").cmdLineArgument("configFile")
+		Configuration.addKey(ConfigKey.newKeyBuilder("configFile").cmdLineArgument("configFile")
 				.cmdLineProp("configFile").envVar("CONFIG_FILE").build());
 	}
 
@@ -57,7 +57,7 @@ public class Configuration {
 		return Collections.unmodifiableList(propertyFileList);
 	}
 
-	public static void addKey(ConfigKeys key) {
+	public static void addKey(ConfigKey key) {
 		Objects.requireNonNull(key);
 		keySet.forEach((existingKey) -> {
 			if (key.key().equals(existingKey.key())) {
@@ -95,7 +95,7 @@ public class Configuration {
 
 	// for when multiple libraries depend on a common key, each library may add the
 	// key via this function.
-	public static void addSharedKey(ConfigKeys key) {
+	public static void addSharedKey(ConfigKey key) {
 		Objects.requireNonNull(key);
 		keySet.add(key);
 	}
@@ -120,7 +120,7 @@ public class Configuration {
 	}
 
 	private String getValue(String key) {
-		ConfigKeys configKeys = keySet.stream().filter((configKey) -> configKey.key().equals(key)).findFirst()
+		ConfigKey configKeys = keySet.stream().filter((configKey) -> configKey.key().equals(key)).findFirst()
 				.orElseThrow();
 		String commandLineParam = getCommandLineArgument(configKeys.commandLineArgument());
 		if (commandLineParam != null && !commandLineParam.isBlank()) {
@@ -213,7 +213,7 @@ public class Configuration {
 		List<String> propertyFiles = new ArrayList<>(propertyFileList);
 		String userSetPropertyFile = null;
 
-		ConfigKeys configFileKey = keySet.stream().filter((configKey) -> configKey.key().equals("configFile"))
+		ConfigKey configFileKey = keySet.stream().filter((configKey) -> configKey.key().equals("configFile"))
 				.findFirst().orElseThrow();
 		String commandLineParam = getCommandLineArgument(configFileKey.commandLineArgument());
 		if (commandLineParam != null && !commandLineParam.isBlank()) {
@@ -256,8 +256,9 @@ public class Configuration {
 		keySet.clear();
 		propertyFileList.clear();
 		commandLineArgs.clear();
+		System.clearProperty("configFile");
 		
-		Configuration.addKey(ConfigKeys.newKeyBuilder("configFile").cmdLineArgument("configFile")
+		Configuration.addKey(ConfigKey.newKeyBuilder("configFile").cmdLineArgument("configFile")
 				.cmdLineProp("configFile").envVar("CONFIG_FILE").build());
 	}
 }

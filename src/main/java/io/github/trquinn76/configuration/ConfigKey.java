@@ -2,14 +2,14 @@ package io.github.trquinn76.configuration;
 
 import java.util.Objects;
 
-public record ConfigKeys(String key, 
+public record ConfigKey(String key, 
         CmdLineArg commandLineArgument,
         String commandLineProperty, 
         String environmentVariable,
         String configFileProperty, 
         String defaultValue) {
     
-    public ConfigKeys {
+    public ConfigKey {
         Objects.requireNonNull(key);
         if (Objects.isNull(commandLineArgument) &&
                 Utils.isNullOrEmpty(commandLineProperty) &&
@@ -21,9 +21,8 @@ public record ConfigKeys(String key,
     }
     
     public static Builder newKeyBuilder(String key) {
-        Objects.requireNonNull(key);
-        if (key.isBlank()) {
-            throw new ConfigurationException("Configuration key may not be empty or null.");
+        if (Utils.isNullOrEmpty(key)) {
+            throw new ConfigurationException("Configuration key may not be null or empty.");
         }
         Builder retval = new Builder();
         return retval.key(key);
@@ -75,12 +74,20 @@ public record ConfigKeys(String key,
             return this;
         }
         
-        public ConfigKeys build() {
+        public ConfigKey build() {
             CmdLineArg cmdLineArg = null;
             if (!Utils.isNullOrEmpty(commandLineArg)) {
                 cmdLineArg = new CmdLineArg(commandLineArg, commandLineArgShort);
             }
-            return new ConfigKeys(key, cmdLineArg, commandLineProperty, envVariable, configFileProperty, defaultValue);
+            return new ConfigKey(key, cmdLineArg, commandLineProperty, envVariable, configFileProperty, defaultValue);
+        }
+        
+        public void buildAndAddKey() {
+        	Configuration.addKey(build());
+        }
+        
+        public void buildAndAddSharedKey() {
+        	Configuration.addSharedKey(build());
         }
     }
 }
