@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'jacoco'
     id 'maven-publish'
-    id 'org.jreleaser' version '1.17.0'
+    id 'org.jreleaser' version '1.23.0'
 }
 
 repositories {
@@ -15,11 +15,12 @@ group = 'io.github.trquinn76'
 version = '1.0.0'
 
 dependencies {
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withSourcesJar()
     withJavadocJar()
