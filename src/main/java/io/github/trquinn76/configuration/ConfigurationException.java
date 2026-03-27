@@ -1,5 +1,8 @@
 package io.github.trquinn76.configuration;
 
+/**
+ * A specialist {@link RuntimeException} for Configuration issues.
+ */
 @SuppressWarnings("serial")
 public class ConfigurationException extends RuntimeException {
 

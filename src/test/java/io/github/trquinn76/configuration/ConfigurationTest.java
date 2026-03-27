@@ -138,6 +138,9 @@ class ConfigurationTest {
 		
 		assertEquals("apple", config.get("alpha"));
 		assertEquals("bananna", config.get("beta"));
+		
+		environment.remove("ALPHA");
+		environment.remove("BETA");
 	}
 	
 	// Property File Tests
@@ -215,26 +218,50 @@ class ConfigurationTest {
 		Configuration config = new Configuration();
 		
 		assertEquals("default value", config.get("key"));
+		config.clearCache();
 		
 		Configuration.appendPropertyFile("precedenceOrder.properties");
 		
 		assertEquals("property file value", config.get("key"));
+		config.clearCache();
 		
 		environment.set("KEY", "environment variable value");
 		
 		assertEquals("environment variable value", config.get("key"));
+		config.clearCache();
 		
 		System.setProperty("key", "cmd line property value");
 		
 		assertEquals("cmd line property value", config.get("key"));
+		config.clearCache();
 		
 		String args[] = { "-key", "cmd line argument value" };
 		Configuration.storeCommandLineArgs(args);
 		
 		assertEquals("cmd line argument value", config.get("key"));
+		
+		environment.remove("KEY");
 	}
 	
-	
+	// Cache Test
+	@Test
+	void cacheTest() {
+		ConfigKey.newKeyBuilder("key").envVar("KEY").buildAndAddKey();
+		
+		environment.set("KEY", "first value");
+		
+		Configuration config = new Configuration();
+		
+		assertEquals("first value", config.get("key"));
+		
+		environment.set("KEY", "second value");
+		
+		assertEquals("first value", config.get("key"));
+		
+		config.clearCache();
+		
+		assertEquals("second value", config.get("key"));
+	}
 	
 	
 	
