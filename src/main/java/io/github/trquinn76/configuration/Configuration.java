@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class for getting Configuration values. Intended for use in both Applications
@@ -77,6 +78,7 @@ public class Configuration {
 	 * @param propertyFile the property file name to search for properties.
 	 */
 	public static void appendPropertyFile(String propertyFile) {
+		propertyFileList.remove(propertyFile);
 		propertyFileList.addLast(propertyFile);
 	}
 
@@ -86,6 +88,7 @@ public class Configuration {
 	 * @param propertyFile the property file name to search for properties.
 	 */
 	public static void prependPropertyFile(String propertyFile) {
+		propertyFileList.remove(propertyFile);
 		propertyFileList.addFirst(propertyFile);
 	}
 
@@ -97,6 +100,7 @@ public class Configuration {
 	 */
 	public static void insertPropertyFile(int index, String propertyFile) {
 		propertyFileList.add(index, propertyFile);
+		removeDuplicateIndexesFromPropertyFileList(index, propertyFile);
 	}
 
 	/**
@@ -104,11 +108,13 @@ public class Configuration {
 	 * 
 	 * Will remove any existing Property File names.
 	 * 
+	 * Will only add distinct file names (ie: duplicates removed).
+	 * 
 	 * @param propertyFiles the list of Property File names to search for properties.
 	 */
 	public static void setPropertyFiles(Collection<String> propertyFiles) {
 		propertyFileList.clear();
-		propertyFileList.addAll(propertyFiles);
+		propertyFileList.addAll(propertyFiles.stream().distinct().collect(Collectors.toList()));
 	}
 
 	/**
@@ -285,7 +291,7 @@ public class Configuration {
 				Properties properties = loadPropertiesFile(propertyFile);
 				if (properties != null) {
 					String value = properties.getProperty(configKeys.configFileProperty());
-					if (!Utils.isNullOrEmpty(value)) {
+					if (!Utils.isNullOrBlank(value)) {
 						return value;
 					}
 				}
@@ -368,6 +374,17 @@ public class Configuration {
 			}
 		}
 		return null;
+	}
+	
+	private static void removeDuplicateIndexesFromPropertyFileList(int index, String propertyFile) {
+		List<Integer> duplicateIndexes = new ArrayList<>();
+		for (int i = 0; i < propertyFileList.size(); i++) {
+			if (propertyFileList.get(i).equals(propertyFile) && i != index) {
+				duplicateIndexes.add(i);
+			}
+		}
+		// remove duplicate indexes in reverse order, so each removal does not impact index of other duplicates.
+		duplicateIndexes.reversed().forEach(duplicateIndex -> propertyFileList.remove(duplicateIndex.intValue()));
 	}
 	
 	/**

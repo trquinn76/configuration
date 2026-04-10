@@ -11,7 +11,7 @@ public class Utils {
 	 * @param str the {@code String} to test.
 	 * @return true if the given {@code String} is null or blank, false otherwise.
 	 */
-	public static boolean isNullOrEmpty(String str) {
+	public static boolean isNullOrBlank(String str) {
 		return str == null || str.isBlank();
 	}
 }

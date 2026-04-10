@@ -8,23 +8,23 @@ class UtilsTest {
 
     @Test
     void isNullTest() {
-        assertTrue(Utils.isNullOrEmpty(null));
+        assertTrue(Utils.isNullOrBlank(null));
     }
     
     @Test
     void isEmptyTest() {
-        assertTrue(Utils.isNullOrEmpty(""));
+        assertTrue(Utils.isNullOrBlank(""));
     }
     
     @Test
     void isBlankTest() {
-        assertTrue(Utils.isNullOrEmpty("  "));
+        assertTrue(Utils.isNullOrBlank("  "));
     }
     
     @Test
     void isPopulatedTest() {
-        assertFalse(Utils.isNullOrEmpty("populated"));
-        assertFalse(Utils.isNullOrEmpty("  a  "));
+        assertFalse(Utils.isNullOrBlank("populated"));
+        assertFalse(Utils.isNullOrBlank("  a  "));
     }
 
 }

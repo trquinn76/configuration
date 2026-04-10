@@ -44,8 +44,8 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 	 */
 	public ConfigKey {
 		Objects.requireNonNull(key);
-		if (Objects.isNull(commandLineArgument) && Utils.isNullOrEmpty(commandLineProperty)
-				&& Utils.isNullOrEmpty(environmentVariable) && Utils.isNullOrEmpty(configFileProperty)
+		if (Objects.isNull(commandLineArgument) && Utils.isNullOrBlank(commandLineProperty)
+				&& Utils.isNullOrBlank(environmentVariable) && Utils.isNullOrBlank(configFileProperty)
 				&& defaultValue == null) {
 			throw new ConfigurationException(
 					"Config Keys require at least one of Command Line Argument, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
@@ -53,7 +53,7 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 	}
 
 	public static Builder newKeyBuilder(String key) {
-		if (Utils.isNullOrEmpty(key)) {
+		if (Utils.isNullOrBlank(key)) {
 			throw new ConfigurationException("Configuration key may not be null or empty.");
 		}
 		Builder retval = new Builder();
@@ -165,7 +165,7 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 		 */
 		public ConfigKey build() {
 			CmdLineArg cmdLineArg = null;
-			if (!Utils.isNullOrEmpty(commandLineArg)) {
+			if (!Utils.isNullOrBlank(commandLineArg)) {
 				cmdLineArg = new CmdLineArg(commandLineArg, commandLineArgShort);
 			}
 			return new ConfigKey(key, cmdLineArg, commandLineProperty, envVariable, configFileProperty, defaultValue);

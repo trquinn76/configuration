@@ -2,6 +2,8 @@ package io.github.trquinn76.configuration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.AfterEach;
@@ -196,6 +198,32 @@ class ConfigurationTest {
 		Configuration config = new Configuration();
 		
 		assertEquals("gamma alternative", config.get("gamma"));
+	}
+	
+	@Test
+	void noDuplicatePropertyFileNamesTest() {
+		Configuration.appendPropertyFile("alpha.properties");
+		Configuration.appendPropertyFile("beta.properties");
+		Configuration.appendPropertyFile("gamma.properties");
+		
+		List<String> expectedPropertyFiles = List.of("alpha.properties", "beta.properties", "gamma.properties");
+		assertEquals(expectedPropertyFiles, Configuration.propertyFiles());
+		
+		Configuration.appendPropertyFile("alpha.properties");
+		expectedPropertyFiles = List.of("beta.properties", "gamma.properties", "alpha.properties");
+		assertEquals(expectedPropertyFiles, Configuration.propertyFiles());
+		
+		Configuration.prependPropertyFile("gamma.properties");
+		expectedPropertyFiles = List.of("gamma.properties", "beta.properties", "alpha.properties");
+		assertEquals(expectedPropertyFiles, Configuration.propertyFiles());
+		
+		Configuration.insertPropertyFile(1, "alpha.properties");
+		expectedPropertyFiles = List.of("gamma.properties", "alpha.properties", "beta.properties");
+		assertEquals(expectedPropertyFiles, Configuration.propertyFiles());
+		
+		Configuration.setPropertyFiles(List.of("alpha.properties", "gamma.properties", "alpha.properties", "beta.properties", "beta.properties", "gamma.properties"));
+		expectedPropertyFiles = List.of("alpha.properties", "gamma.properties", "beta.properties");
+		assertEquals(expectedPropertyFiles, Configuration.propertyFiles());
 	}
 	
 	// Default Tests

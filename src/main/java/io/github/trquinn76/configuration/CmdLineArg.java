@@ -11,7 +11,7 @@ public record CmdLineArg(String argument,
         String shortArgument) {
 
     public CmdLineArg {
-        if (Utils.isNullOrEmpty(argument)) {
+        if (Utils.isNullOrBlank(argument)) {
             throw new ConfigurationException("Require a command line argument.");
         }
     }
