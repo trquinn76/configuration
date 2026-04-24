@@ -19,7 +19,7 @@ import java.util.Objects;
  * configuration value will be retrieved, using the various key values.
  */
 public record ConfigKey(String key, CmdLineArg commandLineArgument, String commandLineProperty,
-		String environmentVariable, String configFileProperty, String defaultValue) {
+		String environmentVariable, String configFileProperty, boolean noValueAllowed, String defaultValue) {
 
 	/**
 	 * A {@code ConfigKey} must have a {@code key}, and at least one other key or
@@ -39,6 +39,13 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 	 * @param configFileProperty  a {@code String} which represents a property key,
 	 *                            found in a property file, which may provide this
 	 *                            configuration value.
+	 * @param noValueAllowed      a {@code Boolean} which indicates that no value is
+	 *                            permitted for this key. Is false by default.
+	 *                            Configuration keys should nearly always have an
+	 *                            associated value. Designs where configuration
+	 *                            values may be absent should be reconsidered. This
+	 *                            supports the rare case where a configuration value
+	 *                            is permitted to be absent.
 	 * @param defaultValue        a {@code String} which represents an optional
 	 *                            default value for the key.
 	 */
@@ -46,7 +53,7 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 		Objects.requireNonNull(key);
 		if (Objects.isNull(commandLineArgument) && Utils.isNullOrBlank(commandLineProperty)
 				&& Utils.isNullOrBlank(environmentVariable) && Utils.isNullOrBlank(configFileProperty)
-				&& defaultValue == null) {
+				&& !noValueAllowed && defaultValue == null) {
 			throw new ConfigurationException(
 					"Config Keys require at least one of Command Line Argument, Command Line Property, Environment Variable, Configuration File Property or Default Value to be populated.");
 		}
@@ -71,6 +78,7 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 		private String commandLineProperty = null;
 		private String envVariable = null;
 		private String configFileProperty = null;
+		private boolean noValueAllowed = false;
 		private String defaultValue = null;
 
 		/**
@@ -146,6 +154,20 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 		}
 
 		/**
+		 * Sets a flag which indicates if no value is allowed for this key.
+		 * 
+		 * If true, then the default value may be null, and no error will be raised if
+		 * no value is found for this config key.
+		 * 
+		 * @param noValueAllowed indicates if this config key may have no value.
+		 * @return this for function chaining.
+		 */
+		public Builder noValueAllowed(boolean noValueAllowed) {
+			this.noValueAllowed = noValueAllowed;
+			return this;
+		}
+
+		/**
 		 * Sets a default value to return if there is no configured value.
 		 * 
 		 * @param defaultValue the default value to return if there is no other
@@ -168,7 +190,8 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 			if (!Utils.isNullOrBlank(commandLineArg)) {
 				cmdLineArg = new CmdLineArg(commandLineArg, commandLineArgShort);
 			}
-			return new ConfigKey(key, cmdLineArg, commandLineProperty, envVariable, configFileProperty, defaultValue);
+			return new ConfigKey(key, cmdLineArg, commandLineProperty, envVariable, configFileProperty, noValueAllowed,
+					defaultValue);
 		}
 
 		/**

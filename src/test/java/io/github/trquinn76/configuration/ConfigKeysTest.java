@@ -28,7 +28,7 @@ class ConfigKeysTest {
     
     @Test
     void attemptToSetNullKey() {
-        assertThrows(NullPointerException.class, () -> { new ConfigKey(null, null, null, "KEY", null, null); });
+        assertThrows(NullPointerException.class, () -> { new ConfigKey(null, null, null, "KEY", null, false, null); });
     }
     
     @Test
@@ -38,7 +38,7 @@ class ConfigKeysTest {
     
     @Test
     void attemptToSetNullNonKeyValues() {
-        assertThrows(ConfigurationException.class, () -> { new ConfigKey("key", null, null, null, null, null); });
+        assertThrows(ConfigurationException.class, () -> { new ConfigKey("key", null, null, null, null, false, null); });
     }
     
     @Test

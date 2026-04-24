@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * 
  * To add configuration keys create a static block, and use the
  * {@link ConfigKey.Builder} to create and add keys. eg:
- * {@code ConfigKey.newKeyBuilder("key").cmdLineArgument("-k").amdLineProp("key").envVar("KEY").buildAndAddKey()}
+ * {@code ConfigKey.newKeyBuilder("key").cmdLineArgument("-k").cmdLineProp("key").envVar("KEY").buildAndAddKey()}
  * <p>
  * Configuration values are cached for accelerated retrieval. The
  * {@code clearCache()} function may be used to clear the cache and force a
@@ -45,27 +45,37 @@ public class Configuration {
 	private static List<String> propertyFileList;
 	private static List<String> commandLineArgs;
 
+	/** {@code String} which is used as a config key for a configuration file */
+	public static final String CONFIG_FILE_STR = "configFile";
+	/** {@link ConfigKey} which is used to configure a configuration file, from which other configuration values may be retrieved */
+	public static final ConfigKey CONFIG_FILE_KEY = ConfigKey.newKeyBuilder(CONFIG_FILE_STR)
+			.cmdLineArgument("-" + CONFIG_FILE_STR).cmdLineProp(CONFIG_FILE_STR).envVar("CONFIG_FILE").noValueAllowed(true).build();
+
 	static {
 		keySet = new HashSet<>();
 		propertyFileList = new ArrayList<>();
 		commandLineArgs = new ArrayList<>();
-		ConfigKey.newKeyBuilder("configFile").cmdLineArgument("configFile").cmdLineProp("configFile")
-				.envVar("CONFIG_FILE").buildAndAddKey();
+		Configuration.addKey(CONFIG_FILE_KEY);
 	}
-	
+
 	private Map<String, String> cache = new HashMap<>();
 
 	/**
-	 * Used to store the Command Line Arguments. Should be called in the {@code main()} function if possible.
+	 * Used to store the Command Line Arguments. Should be called in the
+	 * {@code main()} function if possible.
 	 * 
-	 * Java does not provide a reliable means of getting the Command Line Arguments outside of the {@code main()} function.
-	 * This class will attempt to retrieve them via a call to {@code RuntimeMXBean.getInputArguments()} if the arguments
-	 * have not been set via this function. However, that is not wholely reliable, and will vary between JVM implementations.
+	 * Java does not provide a reliable means of getting the Command Line Arguments
+	 * outside of the {@code main()} function. This class will attempt to retrieve
+	 * them via a call to {@code RuntimeMXBean.getInputArguments()} if the arguments
+	 * have not been set via this function. However, that is not wholely reliable,
+	 * and will vary between JVM implementations.
 	 * 
-	 * Where possible this function should be called in the {@code main()} function, like: {@code Configuration.storeCommandLineArgs(args)}
+	 * Where possible this function should be called in the {@code main()} function,
+	 * like: {@code Configuration.storeCommandLineArgs(args)}
 	 * 
-	 * When using this in libraries, this is not possible, and avoiding Command Line Arguments is wisest. Command Line Properties are
-	 * still available in this case.
+	 * When using this in libraries, this is not possible, and avoiding Command Line
+	 * Arguments is wisest. Command Line Properties are still available in this
+	 * case.
 	 * 
 	 * @param args the Command Line Arguments passed into the application.
 	 */
@@ -75,7 +85,8 @@ public class Configuration {
 	}
 
 	/**
-	 * Appends a new Property File name to the list of property files to search for Property values.
+	 * Appends a new Property File name to the list of property files to search for
+	 * Property values.
 	 * 
 	 * @param propertyFile the property file name to search for properties.
 	 */
@@ -85,7 +96,8 @@ public class Configuration {
 	}
 
 	/**
-	 * Prepends a new Property File name to the list of property files to search for Property values.
+	 * Prepends a new Property File name to the list of property files to search for
+	 * Property values.
 	 * 
 	 * @param propertyFile the property file name to search for properties.
 	 */
@@ -95,9 +107,10 @@ public class Configuration {
 	}
 
 	/**
-	 * Inserts a Property File name in the list of property files, at the given index.
+	 * Inserts a Property File name in the list of property files, at the given
+	 * index.
 	 * 
-	 * @param index the index at which to insert the property file name.
+	 * @param index        the index at which to insert the property file name.
 	 * @param propertyFile the property file name to search for properties.
 	 */
 	public static void insertPropertyFile(int index, String propertyFile) {
@@ -112,7 +125,8 @@ public class Configuration {
 	 * 
 	 * Will only add distinct file names (ie: duplicates removed).
 	 * 
-	 * @param propertyFiles the list of Property File names to search for properties.
+	 * @param propertyFiles the list of Property File names to search for
+	 *                      properties.
 	 */
 	public static void setPropertyFiles(Collection<String> propertyFiles) {
 		propertyFileList.clear();
@@ -131,9 +145,9 @@ public class Configuration {
 	/**
 	 * Adds a new {@link ConfigKey} to the {@code Configuration}.
 	 * 
-	 * The new {@link ConfigKey} and all it's existing key values must be unique in {@code Configuration}.
-	 * It is recommended to use reverse dns notation for each of the key values in the {@link ConfigKey} to
-	 * avoid collisions.
+	 * The new {@link ConfigKey} and all it's existing key values must be unique in
+	 * {@code Configuration}. It is recommended to use reverse dns notation for each
+	 * of the key values in the {@link ConfigKey} to avoid collisions.
 	 * 
 	 * @param key the unique {@link ConfigKey} to add.
 	 */
@@ -174,10 +188,10 @@ public class Configuration {
 	}
 
 	/**
-	 * Adds a new shared {@link ConfigKey} to the {@code COnfiguration}.
+	 * Adds a new shared {@link ConfigKey} to the {@code Configuration}.
 	 * 
-	 * Shared keys are for when multiple libraries depend on a common key. Then each library may add the key via this
-	 * function. 
+	 * Shared keys are for when multiple libraries depend on a common key. Then each
+	 * library may add the key via this function.
 	 * 
 	 * @param key the shared {@link ConfigKey} to add.
 	 */
@@ -212,7 +226,8 @@ public class Configuration {
 	 * Gets the configuration value for the given {@code key} as a {@code double}.
 	 * 
 	 * @param key the configuration key for which to get the value.
-	 * @return the configuration value for the given {@code key} as a {@code double}.
+	 * @return the configuration value for the given {@code key} as a
+	 *         {@code double}.
 	 * @throws ConfigurationException if the value is not a double.
 	 */
 	public double getDouble(String key) {
@@ -223,28 +238,31 @@ public class Configuration {
 	/**
 	 * Gets the configuration value for the given {@code key} as a {@code boolean}.
 	 * 
-	 * If the configuration value does not represent a boolean, then 'false' will be returned.
+	 * If the configuration value does not represent a boolean, then 'false' will be
+	 * returned.
 	 * 
 	 * @param key the configuration key for which to get the value.
-	 * @return the configuration value for the given {@code key} as a {@code boolean}.
+	 * @return the configuration value for the given {@code key} as a
+	 *         {@code boolean}.
 	 */
 	public boolean getBoolean(String key) {
 		String value = getValue(key);
 		return getValueAsBoolean(key, value);
 	}
-	
+
 	/**
-	 * Clears the configuration cache. Provided for testing and development. Should not be routinely used in production.
+	 * Clears the configuration cache. Provided for testing and development. Should
+	 * not be routinely used in production.
 	 */
 	public void clearCache() {
 		this.cache.clear();
 	}
-	
+
 	private String getValue(String key) {
 		if (!cache.containsKey(key)) {
 			cache.put(key, getConfiguredValue(key));
 		}
-		
+
 		return cache.get(key);
 	}
 
@@ -267,22 +285,21 @@ public class Configuration {
 	private boolean getValueAsBoolean(String key, String value) {
 		return Boolean.parseBoolean(value);
 	}
-	
+
 	private String getConfiguredValue(String key) {
-		ConfigKey configKeys = keySet.stream().filter((configKey) -> configKey.key().equals(key)).findFirst()
-				.orElseThrow();
-		String commandLineParam = getCommandLineArgument(configKeys.commandLineArgument());
+		ConfigKey configKey = keySet.stream().filter((ck) -> ck.key().equals(key)).findFirst().orElseThrow();
+		String commandLineParam = getCommandLineArgument(configKey.commandLineArgument());
 		if (commandLineParam != null && !commandLineParam.isBlank()) {
 			return commandLineParam;
 		}
-		if (configKeys.commandLineProperty() != null) {
-			String commandLineProperty = System.getProperty(configKeys.commandLineProperty());
+		if (configKey.commandLineProperty() != null) {
+			String commandLineProperty = System.getProperty(configKey.commandLineProperty());
 			if (commandLineProperty != null && !commandLineProperty.isBlank()) {
 				return commandLineProperty;
 			}
 		}
-		if (configKeys.environmentVariable() != null) {
-			String envValue = System.getenv(configKeys.environmentVariable());
+		if (configKey.environmentVariable() != null) {
+			String envValue = System.getenv(configKey.environmentVariable());
 			if (envValue != null && !envValue.isBlank()) {
 				return envValue;
 			}
@@ -292,7 +309,7 @@ public class Configuration {
 			try {
 				Properties properties = loadPropertiesFile(propertyFile);
 				if (properties != null) {
-					String value = properties.getProperty(configKeys.configFileProperty());
+					String value = properties.getProperty(configKey.configFileProperty());
 					if (!Utils.isNullOrBlank(value)) {
 						return value;
 					}
@@ -301,11 +318,14 @@ public class Configuration {
 				throw new ConfigurationException("Failed to read Configuration file " + propertyFile, ioe);
 			}
 		}
-		if (configKeys.defaultValue() != null) {
-			return configKeys.defaultValue();
+		if (configKey.defaultValue() != null) {
+			return configKey.defaultValue();
 		}
-		throw new ConfigurationException("No configuration value found for " + configKeys
-				+ "! At least a default value should have been found.");
+		if (configKey.noValueAllowed()) {
+			return null;
+		}
+		throw new ConfigurationException(
+				"No configuration value found for " + configKey + "! At least a default value should have been found.");
 	}
 
 	private String getCommandLineArgument(CmdLineArg cmdLineArg) {
@@ -342,8 +362,8 @@ public class Configuration {
 		List<String> propertyFiles = new ArrayList<>(propertyFileList);
 		String userSetPropertyFile = null;
 
-		ConfigKey configFileKey = keySet.stream().filter((configKey) -> configKey.key().equals("configFile"))
-				.findFirst().orElseThrow();
+		ConfigKey configFileKey = keySet.stream().filter((ck) -> ck.key().equals(CONFIG_FILE_STR)).findFirst()
+				.orElseThrow();
 		String commandLineParam = getCommandLineArgument(configFileKey.commandLineArgument());
 		if (commandLineParam != null && !commandLineParam.isBlank()) {
 			userSetPropertyFile = commandLineParam;
@@ -375,13 +395,12 @@ public class Configuration {
 		}
 		return null;
 	}
-	
+
 	private static InputStream openPropertiesFile(String fileName) throws IOException {
 		File file = new File(fileName);
 		if (file.exists()) {
 			return new FileInputStream(file);
-		}
-		else {
+		} else {
 			Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(fileName);
 			if (resources.hasMoreElements()) {
 				return Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
@@ -389,7 +408,7 @@ public class Configuration {
 		}
 		return null;
 	}
-	
+
 	private static void removeDuplicateIndexesFromPropertyFileList(int index, String propertyFile) {
 		List<Integer> duplicateIndexes = new ArrayList<>();
 		for (int i = 0; i < propertyFileList.size(); i++) {
@@ -397,20 +416,21 @@ public class Configuration {
 				duplicateIndexes.add(i);
 			}
 		}
-		// remove duplicate indexes in reverse order, so each removal does not impact index of other duplicates.
+		// remove duplicate indexes in reverse order, so each removal does not impact
+		// index of other duplicates.
 		duplicateIndexes.reversed().forEach(duplicateIndex -> propertyFileList.remove(duplicateIndex.intValue()));
 	}
-	
+
 	/**
-	 * Clears configuration data - intended for testing. Should not be used in production.
+	 * Clears configuration data - intended for testing. Should not be used in
+	 * production.
 	 */
 	static void clearConfig() {
 		keySet.clear();
 		propertyFileList.clear();
 		commandLineArgs.clear();
-		System.clearProperty("configFile");
-		
-		Configuration.addKey(ConfigKey.newKeyBuilder("configFile").cmdLineArgument("configFile")
-				.cmdLineProp("configFile").envVar("CONFIG_FILE").build());
+		System.clearProperty(CONFIG_FILE_STR);
+
+		Configuration.addKey(CONFIG_FILE_KEY);
 	}
 }
