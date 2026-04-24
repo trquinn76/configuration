@@ -2,7 +2,6 @@ package io.github.trquinn76.configuration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -224,6 +223,15 @@ class ConfigurationTest {
 		Configuration.setPropertyFiles(List.of("alpha.properties", "gamma.properties", "alpha.properties", "beta.properties", "beta.properties", "gamma.properties"));
 		expectedPropertyFiles = List.of("alpha.properties", "gamma.properties", "beta.properties");
 		assertEquals(expectedPropertyFiles, Configuration.propertyFiles());
+	}
+	
+	@Test
+	void outsideClasspathTest() {
+		Configuration.appendPropertyFile("outsideClasspath.properties");
+		ConfigKey.newKeyBuilder("outsidekey").configFileProp("outsidekey").buildAndAddKey();
+		Configuration config = new Configuration();
+		
+		assertEquals("alpha", config.get("outsidekey"));
 	}
 	
 	// Default Tests

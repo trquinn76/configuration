@@ -1,5 +1,7 @@
 package io.github.trquinn76.configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
@@ -363,14 +365,26 @@ public class Configuration {
 	}
 
 	private static Properties loadPropertiesFile(String propertiesFileName) throws IOException {
-		Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(propertiesFileName);
-		if (resources.hasMoreElements()) {
-			try (InputStream in = Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream(propertiesFileName)) {
+		try (InputStream in = openPropertiesFile(propertiesFileName)) {
+			if (in != null) {
 				Properties configProps = new Properties();
 				configProps.load(in);
 
 				return configProps;
+			}
+		}
+		return null;
+	}
+	
+	private static InputStream openPropertiesFile(String fileName) throws IOException {
+		File file = new File(fileName);
+		if (file.exists()) {
+			return new FileInputStream(file);
+		}
+		else {
+			Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources(fileName);
+			if (resources.hasMoreElements()) {
+				return Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
 			}
 		}
 		return null;
