@@ -70,7 +70,7 @@ be added to `Configuration`. This may be done with any of the following static f
 * `insertPropertyFile()` adds the property file name at the given index of the list of property file names.
 * `setPropertyFiles()` sets the list of property file names. Will replace any existing list.
 
-
+Example:
     static {
         Configuration.appendPropertyFile("config.property");
         Configuration.appendPropertyFile("application.property");
