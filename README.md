@@ -1,6 +1,6 @@
 # Configuration
 
-This library provides the means to define and retrieve configuration keys and values from the full set of typical configuration sources:
+This library provides the means to define and retrieve configuration values from the full set of typical configuration sources:
 
 * Command Line Arguments
 * Command Line Properties
@@ -46,16 +46,22 @@ Use the instance of `Configuration` to retrieve configuration values at run time
     int gammaConfig = config.getInt("gamma");
     boolean deltaConfig = config.getBoolean("delta");
     
+### ConfigKey's outside static blocks
+
+`ConfigKey`s may be created outside `static` blocks, and added to `Configuration`. Bear in mind that these configuration values will not be
+available from a `Configuration` instance until after they have been created and added.
+    
 ### Storing Command Line Arguments
 
-When the developer has control of the `static void main(String[] args)` entry point function, they should used the `storeCommandLineArgs()`
+When the developer has control of the `static void main(String[] args)` entry point function, they should use the `storeCommandLineArgs()`
 function to store the Command Line Arguments. This allows the Command Line Arguments to be parsed for configuration values later.
 
 Java does not provide a reliable means of getting the Command Line Arguments outside of the `static void main()` function.
 `Configuration` will attempt to retrieve them via a call to `RuntimeMXBean.getInputArguments()` if the arguments
 have not been set via this function. However, that is not reliable, and will vary between JVM implementations.
 
-Where possible this function should be called in the `static void main(String[] args)` function, like: `Configuration.storeCommandLineArgs(args)`
+Where possible this function should be called in the `static void main(String[] args)` function, like:
+`Configuration.storeCommandLineArgs(args)`
 
 When using `Configuration` in libraries, this is not possible, and avoiding Command Line Arguments is wisest. Command Line Properties are
 still available in this case.
@@ -71,6 +77,7 @@ be added to `Configuration`. This may be done with any of the following static f
 * `setPropertyFiles()` sets the list of property file names. Will replace any existing list.
 
 Example:
+
     static {
         Configuration.appendPropertyFile("config.property");
         Configuration.appendPropertyFile("application.property");
@@ -88,15 +95,54 @@ Defined property files which do not exist are ignored, and do not raise an error
 (eg: application.property). Then if the application they are added to do not define that file, configuration can still work via other configuration
 files, or other sources of configuration.
 
-#### Property Keys
+#### Reverse Domain Name Notation
 
-It is strongly recommended that property file keys use Reverse Domain Name Notation.
+It is strongly recommended that Reverse Domain Name Notation be used for various configuration keys. This is especially important for property file
+keys, and configuration keys in libraries. This helps avoid key collisions, for which there is no resolution other than changing keys - and if two
+libraries have a key collision there will be no resolution possible other than not using one of the libraries.
 
-## Future enhancement
+### Configuration Keys with no Value
 
-A possible future enhancement would be to support YAML and JSON configuration files, rather than just simple Property files. This was
+In normal cases every Configuration Key should have an associated Configuration Value. In this library attempting to retrieve a Configuration Value
+which does not exist raises a `ConfigurationException`. To avoid that a default value should be added to all Configuration Keys, either
+through a default configuration property file, or explicitly via the default value on the `ConfigKey`.
+
+However, for cases where a Configuration Key may not have any value, when building the `ConfigKey` the `noValueAllowed()` function
+may be used to indicate that no value is permitted for this `key`.
+
+## Keys of keys of values (I'm confused)
+
+The `ConfigKey` contains a `key` value. This is frequently referred to as the Configuration Key in this documentation. This `key` is used
+to retrieve the Configuration Value from an instance of `Configuration`. eg:
+
+    Configuration config = new Configuration();
+    String configValue = config.get("key");
+
+The `ConfigKey` also contains values for one or more of:
+
+* Command Line Argument
+* Command Line Property
+* Environment Variable
+* Property File Property
+* Default Value
+
+These values may also be referred to as keys in some circumstances, especially the Property File Property key.
+
+## Caching
+
+Currently Configuration Values are cached after their first retrieval. This provides performance advantages. Also it is my view that in ordinary
+circumstances the configuration values for an application should not change at run time.
+
+On the other hand I can see the value of, and have directly used, the ability to change configuration values at run time for development
+and testing purposes.
+
+As of this writing, performance considerations, and eliminating certain kinds of bugs related to changing configuration values, have resulted
+in cached values.
+
+## Possible Future enhancement
+
+A possible future enhancement would be to support YAML and JSON configuration files, rather than just Property files. This was
 considered, but not implemented at this time.
 
-Better support for retrieving Command Line Arguments. This is currently limited by existing JVM's.
-
-
+Better support for retrieving Command Line Arguments. This is currently limited by existing JVM's. Alternatively may abandon attempts to retrieve
+Command Line Arguments outside the `main()` function.

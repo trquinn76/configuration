@@ -5,11 +5,13 @@ import java.util.Objects;
 /**
  * Represents a configuration key, with values for each configuration source.
  * 
+ * <p>
+ * A Configuration {@code key}, with at least one or more of the following keys:
  * <ul>
- * <li>Command Line Arguments</li>
- * <li>Command Line Properties</li>
- * <li>Environment Variables</li>
- * <li>Property Files</li>
+ * <li>Command Line Argument</li>
+ * <li>Command Line Property</li>
+ * <li>Environment Variable</li>
+ * <li>Property File Property</li>
  * <li>Default Value</li>
  * </ul>
  * 
