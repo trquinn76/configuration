@@ -19,6 +19,24 @@ import java.util.Objects;
  * When using {@link Configuration} {@code getValue()} functions to get a
  * configuration value, the {@code key} value is the one to use. Then the
  * configuration value will be retrieved, using the various key values.
+ * 
+ * @param key                 the key of the Configuration value. Used to
+ *                            retrieve the value from the instance of
+ *                            {@link Configuration}.
+ * @param commandLineArgument optional command line argument, which may populate
+ *                            the configuration value.
+ * @param commandLineProperty optional command line property, which may populate
+ *                            the configuration value.
+ * @param environmentVariable optional environment variable, which may populate
+ *                            the configuration value.
+ * @param configFileProperty  optional property file Property, which may have a
+ *                            value which populates the configuration value.
+ * @param noValueAllowed      indicates that the configuration value may be
+ *                            unset. Is false by default - it is expected that
+ *                            in normal circumstances configuration values will
+ *                            always have a value.
+ * @param defaultValue        an optional default value for the configuration
+ *                            value.
  */
 public record ConfigKey(String key, CmdLineArg commandLineArgument, String commandLineProperty,
 		String environmentVariable, String configFileProperty, boolean noValueAllowed, String defaultValue) {
@@ -61,6 +79,15 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 		}
 	}
 
+	/**
+	 * Create a {@link Builder} for {@link ConfigKey}, with the given {@code key} as
+	 * the configuration key.
+	 * 
+	 * @param key the {@code key} for the configuration value, which may be used to
+	 *            retrieve the configuration value from the instance of
+	 *            {@link Configuration}.
+	 * @return a new {@link Builder} for an instance of {@link ConfigKey}.
+	 */
 	public static Builder newKeyBuilder(String key) {
 		if (Utils.isNullOrBlank(key)) {
 			throw new ConfigurationException("Configuration key may not be null or empty.");

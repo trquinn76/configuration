@@ -14,4 +14,8 @@ public class Utils {
 	public static boolean isNullOrBlank(String str) {
 		return str == null || str.isBlank();
 	}
+
+	private Utils() {
+		// this class should not be instantiated.
+	}
 }
