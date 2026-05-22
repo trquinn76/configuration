@@ -23,7 +23,7 @@ Create a static block, which contains the Configuration Key definitions:
     static {
         ConfigKey.newKeyBuilder("alpha").cmdLineArgument("-alpha").envVar("ALPHA").configFileProp("com.project.alpha").buildAndAddKey();
         ConfigKey.newKeyBuilder("beta").cmdLineArgument("-beta").envVar("BETA").configFileProp("com.project.beta").buildAndAddKey();
-        ConfigKey.newKeyBuilder("gamma").cmdLineArgument("-gamma").cmdLineArgumentShhort("-g").envVar("GAMMA").configFileProp("com.project.gamma").buildAndAddKey();
+        ConfigKey.newKeyBuilder("gamma").cmdLineArgument("-gamma").cmdLineArgumentShort("-g").envVar("GAMMA").configFileProp("com.project.gamma").buildAndAddKey();
         ConfigKey.newKeyBuilder("delta").cmdLineArgument("-d").envVar("DELTA").configFileProp("com.project.delta").buildAndAddKey();
     }
 
