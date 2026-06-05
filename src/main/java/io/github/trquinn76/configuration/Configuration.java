@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * 
  * To add configuration keys create a static block, and use the
  * {@link ConfigKey.Builder} to create and add keys. eg:
- * {@code ConfigKey.newKeyBuilder("key").cmdLineArgument("-k").cmdLineProp("key").envVar("KEY").buildAndAddKey()}
+ * {@code ConfigKey.builder("key").cmdLineArgument("-k").cmdLineProp("key").envVar("KEY").buildAndAddKey()}
  * <p>
  * Configuration values are cached for accelerated retrieval. The
  * {@code clearCache()} function may be used to clear the cache and force a
@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
  * <p>
  * There is one existing configuration key, {@code configFile}. This may be used
  * to set a property file to search for configuration values at run time. This
- * property file will always be searched first, allowing otherwise hardcoded
- * configuration properties to be overridden.
+ * property file will always be searched first, allowing other configuration
+ * properties to be overridden.
  */
 public class Configuration {
 
@@ -48,7 +48,7 @@ public class Configuration {
 	/** {@code String} which is used as a config key for a configuration file */
 	public static final String CONFIG_FILE_STR = "configFile";
 	/** {@link ConfigKey} which is used to configure a configuration file, from which other configuration values may be retrieved */
-	public static final ConfigKey CONFIG_FILE_KEY = ConfigKey.newKeyBuilder(CONFIG_FILE_STR)
+	public static final ConfigKey CONFIG_FILE_KEY = ConfigKey.builder(CONFIG_FILE_STR)
 			.cmdLineArgument("-" + CONFIG_FILE_STR).cmdLineProp(CONFIG_FILE_STR).envVar("CONFIG_FILE").noValueAllowed(true).build();
 
 	static {
@@ -146,7 +146,7 @@ public class Configuration {
 	 * Adds a new {@link ConfigKey} to the {@code Configuration}.
 	 * 
 	 * The new {@link ConfigKey} and all it's existing key values must be unique in
-	 * {@code Configuration}. It is recommended to use reverse dns notation for each
+	 * {@code Configuration}. It is recommended to use reverse DNS notation for each
 	 * of the key values in the {@link ConfigKey} to avoid collisions.
 	 * 
 	 * @param key the unique {@link ConfigKey} to add.
@@ -287,45 +287,49 @@ public class Configuration {
 	}
 
 	private String getConfiguredValue(String key) {
+		String retval = null;
 		ConfigKey configKey = keySet.stream().filter((ck) -> ck.key().equals(key)).findFirst().orElseThrow();
 		String commandLineParam = getCommandLineArgument(configKey.commandLineArgument());
 		if (commandLineParam != null && !commandLineParam.isBlank()) {
-			return commandLineParam;
+			retval = commandLineParam;
 		}
-		if (configKey.commandLineProperty() != null) {
+		if (retval == null && configKey.commandLineProperty() != null) {
 			String commandLineProperty = System.getProperty(configKey.commandLineProperty());
 			if (commandLineProperty != null && !commandLineProperty.isBlank()) {
-				return commandLineProperty;
+				retval = commandLineProperty;
 			}
 		}
-		if (configKey.environmentVariable() != null) {
+		if (retval == null && configKey.environmentVariable() != null) {
 			String envValue = System.getenv(configKey.environmentVariable());
 			if (envValue != null && !envValue.isBlank()) {
-				return envValue;
+				retval = envValue;
 			}
 		}
-		for (String propertyFile : generatePropertyFilesList()) {
-			// assume a standard java Properties file.
-			try {
-				Properties properties = loadPropertiesFile(propertyFile);
-				if (properties != null) {
-					String value = properties.getProperty(configKey.configFileProperty());
-					if (!Utils.isNullOrBlank(value)) {
-						return value;
+		if (retval == null) {
+			for (String propertyFile : generatePropertyFilesList()) {
+				// assume a standard java Properties file.
+				try {
+					Properties properties = loadPropertiesFile(propertyFile);
+					if (properties != null) {
+						String value = properties.getProperty(configKey.configFileProperty());
+						if (!Utils.isNullOrBlank(value)) {
+							retval = value;
+							break;
+						}
 					}
+				} catch (IOException ioe) {
+					throw new ConfigurationException("Failed to read Configuration file " + propertyFile, ioe);
 				}
-			} catch (IOException ioe) {
-				throw new ConfigurationException("Failed to read Configuration file " + propertyFile, ioe);
 			}
 		}
-		if (configKey.defaultValue() != null) {
-			return configKey.defaultValue();
+		if (retval == null && configKey.defaultValue() != null) {
+			retval = configKey.defaultValue();
 		}
-		if (configKey.noValueAllowed()) {
-			return null;
+		if (retval == null && !configKey.noValueAllowed()) {
+			throw new ConfigurationException(
+					"No configuration value found for " + configKey + "! At least a default value should have been found.");
 		}
-		throw new ConfigurationException(
-				"No configuration value found for " + configKey + "! At least a default value should have been found.");
+		return retval;
 	}
 
 	private String getCommandLineArgument(CmdLineArg cmdLineArg) {

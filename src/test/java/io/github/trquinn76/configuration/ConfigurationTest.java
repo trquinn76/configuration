@@ -27,7 +27,7 @@ class ConfigurationTest {
 	// Key Tests
 	@Test
 	void noKeyTest() {
-		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("alpha").configFileProp("alpha").buildAndAddKey();
+		ConfigKey.builder("alpha").cmdLineArgument("alpha").configFileProp("alpha").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -37,7 +37,7 @@ class ConfigurationTest {
 
 	@Test
 	void noPropertiesTest() {
-		assertThrows(ConfigurationException.class, () -> ConfigKey.newKeyBuilder("alpha").build());
+		assertThrows(ConfigurationException.class, () -> ConfigKey.builder("alpha").build());
 	}
 
 	// Command Line Args Tests
@@ -46,10 +46,10 @@ class ConfigurationTest {
 		String[] args = { "-alpha", "apple", "-beta", "true", "-gamma", "42", "-delta", "1.11" };
 		Configuration.storeCommandLineArgs(args);
 
-		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("-alpha").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").cmdLineArgument("-beta").buildAndAddKey();
-		ConfigKey.newKeyBuilder("gamma").cmdLineArgument("-gamma").buildAndAddKey();
-		ConfigKey.newKeyBuilder("delta").cmdLineArgument("-delta").buildAndAddKey();
+		ConfigKey.builder("alpha").cmdLineArgument("-alpha").buildAndAddKey();
+		ConfigKey.builder("beta").cmdLineArgument("-beta").buildAndAddKey();
+		ConfigKey.builder("gamma").cmdLineArgument("-gamma").buildAndAddKey();
+		ConfigKey.builder("delta").cmdLineArgument("-delta").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -64,9 +64,9 @@ class ConfigurationTest {
 		String args[] = { "-alpha", "NotInt", "-beta", "NotDouble", "-gamma", "NotBoolean" };
 		Configuration.storeCommandLineArgs(args);
 
-		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("-alpha").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").cmdLineArgument("-beta").buildAndAddKey();
-		ConfigKey.newKeyBuilder("gamma").cmdLineArgument("-gamma").buildAndAddKey();
+		ConfigKey.builder("alpha").cmdLineArgument("-alpha").buildAndAddKey();
+		ConfigKey.builder("beta").cmdLineArgument("-beta").buildAndAddKey();
+		ConfigKey.builder("gamma").cmdLineArgument("-gamma").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -80,8 +80,8 @@ class ConfigurationTest {
 		String args[] = { "-alpha", "apple", "NotConfig", "-beta", "bananna" };
 		Configuration.storeCommandLineArgs(args);
 
-		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("-alpha").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").cmdLineArgument("-beta").buildAndAddKey();
+		ConfigKey.builder("alpha").cmdLineArgument("-alpha").buildAndAddKey();
+		ConfigKey.builder("beta").cmdLineArgument("-beta").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -94,10 +94,10 @@ class ConfigurationTest {
 		String args[] = { "-alpha", "apple", "-b", "bananna", "-gamma", "grape", "-d", "Drink" };
 		Configuration.storeCommandLineArgs(args);
 
-		ConfigKey.newKeyBuilder("alpha").cmdLineArgument("-alpha").cmdLineArgumentShort("-a").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").cmdLineArgument("-beta").cmdLineArgumentShort("-b").buildAndAddKey();
-		ConfigKey.newKeyBuilder("gamma").cmdLineArgument("-gamma").cmdLineArgumentShort("-g").buildAndAddKey();
-		ConfigKey.newKeyBuilder("delta").cmdLineArgument("-delta").cmdLineArgumentShort("-d").buildAndAddKey();
+		ConfigKey.builder("alpha").cmdLineArgument("-alpha").cmdLineArgumentShort("-a").buildAndAddKey();
+		ConfigKey.builder("beta").cmdLineArgument("-beta").cmdLineArgumentShort("-b").buildAndAddKey();
+		ConfigKey.builder("gamma").cmdLineArgument("-gamma").cmdLineArgumentShort("-g").buildAndAddKey();
+		ConfigKey.builder("delta").cmdLineArgument("-delta").cmdLineArgumentShort("-d").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -113,8 +113,8 @@ class ConfigurationTest {
 		System.setProperty("alpha", "apple");
 		System.setProperty("beta", "bananna");
 
-		ConfigKey.newKeyBuilder("alpha").cmdLineProp("alpha").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").cmdLineProp("beta").buildAndAddKey();
+		ConfigKey.builder("alpha").cmdLineProp("alpha").buildAndAddKey();
+		ConfigKey.builder("beta").cmdLineProp("beta").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -132,8 +132,8 @@ class ConfigurationTest {
 		environment.set("ALPHA", "apple");
 		environment.set("BETA", "bananna");
 
-		ConfigKey.newKeyBuilder("alpha").envVar("ALPHA").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").envVar("BETA").buildAndAddKey();
+		ConfigKey.builder("alpha").envVar("ALPHA").buildAndAddKey();
+		ConfigKey.builder("beta").envVar("BETA").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -149,8 +149,8 @@ class ConfigurationTest {
 	// - file order tests
 	@Test
 	void fromPropertiesFileTest() {
-		ConfigKey.newKeyBuilder("letters").configFileProp("alphabet").buildAndAddKey();
-		ConfigKey.newKeyBuilder("fantasy").configFileProp("rumple").buildAndAddKey();
+		ConfigKey.builder("letters").configFileProp("alphabet").buildAndAddKey();
+		ConfigKey.builder("fantasy").configFileProp("rumple").buildAndAddKey();
 
 		Configuration.appendPropertyFile("test.properties");
 
@@ -166,8 +166,8 @@ class ConfigurationTest {
 
 		System.setProperty("configFile", "alternative.properties");
 
-		ConfigKey.newKeyBuilder("one").configFileProp("alphabet").buildAndAddKey();
-		ConfigKey.newKeyBuilder("two").configFileProp("altkeyone").buildAndAddKey();
+		ConfigKey.builder("one").configFileProp("alphabet").buildAndAddKey();
+		ConfigKey.builder("two").configFileProp("altkeyone").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -180,7 +180,7 @@ class ConfigurationTest {
 		Configuration.appendPropertyFile("test.properties");
 		Configuration.appendPropertyFile("alternative.properties");
 
-		ConfigKey.newKeyBuilder("gamma").configFileProp("gamma").buildAndAddKey();
+		ConfigKey.builder("gamma").configFileProp("gamma").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -192,7 +192,7 @@ class ConfigurationTest {
 		Configuration.appendPropertyFile("alternative.properties");
 		Configuration.appendPropertyFile("test.properties");
 
-		ConfigKey.newKeyBuilder("gamma").configFileProp("gamma").buildAndAddKey();
+		ConfigKey.builder("gamma").configFileProp("gamma").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -239,7 +239,7 @@ class ConfigurationTest {
 	void definedConfigFileTest() {
 		Configuration.appendPropertyFile("test.properties");
 
-		ConfigKey.newKeyBuilder("gamma").configFileProp("gamma").buildAndAddKey();
+		ConfigKey.builder("gamma").configFileProp("gamma").buildAndAddKey();
 
 		environment.set("CONFIG_FILE", "alternative.properties");
 
@@ -255,7 +255,7 @@ class ConfigurationTest {
 	@Test
 	void outsideClasspathTest() {
 		Configuration.appendPropertyFile("outsideClasspath.properties");
-		ConfigKey.newKeyBuilder("outsidekey").configFileProp("outsidekey").buildAndAddKey();
+		ConfigKey.builder("outsidekey").configFileProp("outsidekey").buildAndAddKey();
 		Configuration config = new Configuration();
 
 		assertEquals("alpha", config.get("outsidekey"));
@@ -264,8 +264,8 @@ class ConfigurationTest {
 	// Default Tests
 	@Test
 	void defaultTest() {
-		ConfigKey.newKeyBuilder("alpha").defaultValue("apple").buildAndAddKey();
-		ConfigKey.newKeyBuilder("beta").defaultValue("bananna").buildAndAddKey();
+		ConfigKey.builder("alpha").defaultValue("apple").buildAndAddKey();
+		ConfigKey.builder("beta").defaultValue("bananna").buildAndAddKey();
 
 		Configuration config = new Configuration();
 
@@ -276,7 +276,7 @@ class ConfigurationTest {
 	// Precedence Order Tests
 	@Test
 	void precedenceOrderTest() {
-		ConfigKey.newKeyBuilder("key").cmdLineArgument("-key").cmdLineProp("key").envVar("KEY")
+		ConfigKey.builder("key").cmdLineArgument("-key").cmdLineProp("key").envVar("KEY")
 				.configFileProp("prop.key").defaultValue("default value").buildAndAddKey();
 
 		Configuration config = new Configuration();
@@ -310,7 +310,7 @@ class ConfigurationTest {
 	// Cache Test
 	@Test
 	void cacheTest() {
-		ConfigKey.newKeyBuilder("key").envVar("KEY").buildAndAddKey();
+		ConfigKey.builder("key").envVar("KEY").buildAndAddKey();
 
 		environment.set("KEY", "first value");
 

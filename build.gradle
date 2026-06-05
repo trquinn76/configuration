@@ -20,7 +20,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(21)
     }
     withSourcesJar()
     withJavadocJar()
@@ -59,7 +59,7 @@ publishing {
 
             pom {
                 name = 'Configuration'
-                description = "A library for getting configuratio values"
+                description = "A library for getting configuration values"
                 inceptionYear = "2025"
                 url = "https://github.com/trquinn76/configuration"
                 licenses {

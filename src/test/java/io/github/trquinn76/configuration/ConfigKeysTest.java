@@ -8,7 +8,7 @@ class ConfigKeysTest {
 
     @Test
     void newConfigKeyTest() {
-        ConfigKey.Builder builder = ConfigKey.newKeyBuilder("key");
+        ConfigKey.Builder builder = ConfigKey.builder("key");
         builder.cmdLineArgument("key").cmdLineArgumentShort("k");
         builder.cmdLineProp("propertyKey");
         builder.envVar("KEY");
@@ -33,7 +33,7 @@ class ConfigKeysTest {
     
     @Test
     void attemptToSetNullKeyViaBuilder() {
-        assertThrows(ConfigurationException.class, () -> { ConfigKey.newKeyBuilder(null); });
+        assertThrows(ConfigurationException.class, () -> { ConfigKey.builder(null); });
     }
     
     @Test
@@ -43,14 +43,14 @@ class ConfigKeysTest {
     
     @Test
     void attemptToSetNullNonKeyValuesViaBuilder() {
-        ConfigKey.Builder builder = ConfigKey.newKeyBuilder("key");
+        ConfigKey.Builder builder = ConfigKey.builder("key");
         assertThrows(ConfigurationException.class, () -> { builder.build(); });
     }
     
     // this represents a guess at the most common definition of Config Keys.
     @Test
     void createExpectedStandardKey() {
-        ConfigKey.Builder builder = ConfigKey.newKeyBuilder("key");
+        ConfigKey.Builder builder = ConfigKey.builder("key");
         builder.envVar("KEY");
         builder.configFileProp("configFileProperty");
         ConfigKey key = builder.build();
@@ -65,11 +65,11 @@ class ConfigKeysTest {
     
     @Test
     void createCmdLineArgs() {
-        ConfigKey key = ConfigKey.newKeyBuilder("key").cmdLineArgument("key").cmdLineArgumentShort("k").build();
+        ConfigKey key = ConfigKey.builder("key").cmdLineArgument("key").cmdLineArgumentShort("k").build();
         assertEquals("key", key.commandLineArgument().argument());
         assertEquals("k", key.commandLineArgument().shortArgument());
         
-        key = ConfigKey.newKeyBuilder("key").cmdLineArgument("key").build();
+        key = ConfigKey.builder("key").cmdLineArgument("key").build();
         assertEquals("key", key.commandLineArgument().argument());
         assertNull(key.commandLineArgument().shortArgument());
     }

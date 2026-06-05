@@ -8,6 +8,8 @@ This library provides the means to define and retrieve configuration values from
 * Property Files
 * Default Values
 
+Compiled for Java 21 and above.
+
 ## Purpose
 
 Not wanting to replicate configuration code across multiple projects, and not finding any existing Configuration library which supports all the
@@ -21,10 +23,10 @@ various different configuration sources.
 Create a static block, which contains the Configuration Key definitions:
 
     static {
-        ConfigKey.newKeyBuilder("alpha").cmdLineArgument("-alpha").envVar("ALPHA").configFileProp("com.project.alpha").buildAndAddKey();
-        ConfigKey.newKeyBuilder("beta").cmdLineArgument("-beta").envVar("BETA").configFileProp("com.project.beta").buildAndAddKey();
-        ConfigKey.newKeyBuilder("gamma").cmdLineArgument("-gamma").cmdLineArgumentShort("-g").envVar("GAMMA").configFileProp("com.project.gamma").buildAndAddKey();
-        ConfigKey.newKeyBuilder("delta").cmdLineArgument("-d").envVar("DELTA").configFileProp("com.project.delta").buildAndAddKey();
+        ConfigKey.builder("alpha").cmdLineArgument("-alpha").envVar("ALPHA").configFileProp("com.project.alpha").buildAndAddKey();
+        ConfigKey.builder("beta").cmdLineArgument("-beta").envVar("BETA").configFileProp("com.project.beta").buildAndAddKey();
+        ConfigKey.builder("gamma").cmdLineArgument("-gamma").cmdLineArgumentShort("-g").envVar("GAMMA").configFileProp("com.project.gamma").buildAndAddKey();
+        ConfigKey.builder("delta").cmdLineArgument("-d").envVar("DELTA").configFileProp("com.project.delta").buildAndAddKey();
     }
 
 > A `static` block is used, as these are run when the class is initialised, which is usually before the `main()` function is invoked.
@@ -53,7 +55,7 @@ available from a `Configuration` instance until after they have been created and
     
 ### Storing Command Line Arguments
 
-When the developer has control of the `static void main(String[] args)` entry point function, they should use the `storeCommandLineArgs()`
+When the developer has control of the `static void main(String[] args)` entry point function, they may use the `storeCommandLineArgs()`
 function to store the Command Line Arguments. This allows the Command Line Arguments to be parsed for configuration values later.
 
 Java does not provide a reliable means of getting the Command Line Arguments outside of the `static void main()` function.
@@ -101,6 +103,19 @@ It is strongly recommended that Reverse Domain Name Notation be used for various
 keys, and configuration keys in libraries. This helps avoid key collisions, for which there is no resolution other than changing keys - and if two
 libraries have a key collision there will be no resolution possible other than not using one of the libraries.
 
+### Precedence Order
+
+When searching for a Configuration Value, configuration sources are searched in the following order:
+
+1. Command Line Arguments
+2. Command Line Properties
+3. Environment Variables
+4. Property Files (in the order the Property Files are listed in)
+5. Default Values
+
+The first value found is the Configuration Value returned. This allows typical configuration values defined in property files
+to be over ridden by defining a command line argument or property or environment variable.
+
 ### Configuration Keys with no Value
 
 In normal cases every Configuration Key should have an associated Configuration Value. In this library attempting to retrieve a Configuration Value
@@ -109,6 +124,16 @@ through a default configuration property file, or explicitly via the default val
 
 However, for cases where a Configuration Key may not have any value, when building the `ConfigKey` the `noValueAllowed()` function
 may be used to indicate that no value is permitted for this `key`.
+
+## ConfigFile Configuration Key
+
+There is one existing configuration key, `configFile`. This may be used to set a property file to search for configuration values at run time.
+This property file will always be searched first, allowing other configuration property file properties to be overridden. The configuration keys
+for this are:
+
+* Command Line Argument: `-configFile`
+* Command Line Property: `configFile`
+*  Environment Variable: `CONFIG_FILE`
 
 ## Keys of keys of values (I'm confused)
 

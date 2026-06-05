@@ -88,7 +88,7 @@ public record ConfigKey(String key, CmdLineArg commandLineArgument, String comma
 	 *            {@link Configuration}.
 	 * @return a new {@link Builder} for an instance of {@link ConfigKey}.
 	 */
-	public static Builder newKeyBuilder(String key) {
+	public static Builder builder(String key) {
 		if (Utils.isNullOrBlank(key)) {
 			throw new ConfigurationException("Configuration key may not be null or empty.");
 		}
