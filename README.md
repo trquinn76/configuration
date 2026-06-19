@@ -10,6 +10,14 @@ This library provides the means to define and retrieve configuration values from
 
 Compiled for Java 21 and above.
 
+> #### Maven Coordinates:
+> 
+>     <dependency>
+>         <groupId>io.github.trquinn76</groupId>
+>         <artifactId>configuration</artifactId>
+>         <version>1.0.1</version>
+>     </dependency>
+
 ## Purpose
 
 Not wanting to replicate configuration code across multiple projects, and not finding any existing Configuration library which supports all the
@@ -124,16 +132,6 @@ through a default configuration property file, or explicitly via the default val
 
 However, for cases where a Configuration Key may not have any value, when building the `ConfigKey` the `noValueAllowed()` function
 may be used to indicate that no value is permitted for this `key`.
-
-## ConfigFile Configuration Key
-
-There is one existing configuration key, `configFile`. This may be used to set a property file to search for configuration values at run time.
-This property file will always be searched first, allowing other configuration property file properties to be overridden. The configuration keys
-for this are:
-
-* Command Line Argument: `-configFile`
-* Command Line Property: `configFile`
-*  Environment Variable: `CONFIG_FILE`
 
 ## Keys of keys of values (I'm confused)
 

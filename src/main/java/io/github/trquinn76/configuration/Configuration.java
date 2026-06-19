@@ -45,17 +45,10 @@ public class Configuration {
 	private static List<String> propertyFileList;
 	private static List<String> commandLineArgs;
 
-	/** {@code String} which is used as a config key for a configuration file */
-	public static final String CONFIG_FILE_STR = "configFile";
-	/** {@link ConfigKey} which is used to configure a configuration file, from which other configuration values may be retrieved */
-	public static final ConfigKey CONFIG_FILE_KEY = ConfigKey.builder(CONFIG_FILE_STR)
-			.cmdLineArgument("-" + CONFIG_FILE_STR).cmdLineProp(CONFIG_FILE_STR).envVar("CONFIG_FILE").noValueAllowed(true).build();
-
 	static {
 		keySet = new HashSet<>();
 		propertyFileList = new ArrayList<>();
 		commandLineArgs = new ArrayList<>();
-		Configuration.addKey(CONFIG_FILE_KEY);
 	}
 
 	private Map<String, String> cache = new HashMap<>();
@@ -363,29 +356,7 @@ public class Configuration {
 	}
 
 	private List<String> generatePropertyFilesList() {
-		List<String> propertyFiles = new ArrayList<>(propertyFileList);
-		String userSetPropertyFile = null;
-
-		ConfigKey configFileKey = keySet.stream().filter((ck) -> ck.key().equals(CONFIG_FILE_STR)).findFirst()
-				.orElseThrow();
-		String commandLineParam = getCommandLineArgument(configFileKey.commandLineArgument());
-		if (commandLineParam != null && !commandLineParam.isBlank()) {
-			userSetPropertyFile = commandLineParam;
-		}
-		String commandLineProperty = System.getProperty(configFileKey.commandLineProperty());
-		if (userSetPropertyFile == null && commandLineProperty != null && !commandLineProperty.isBlank()) {
-			userSetPropertyFile = commandLineProperty;
-		}
-		String envValue = System.getenv(configFileKey.environmentVariable());
-		if (userSetPropertyFile == null && envValue != null && !envValue.isBlank()) {
-			userSetPropertyFile = envValue;
-		}
-
-		if (userSetPropertyFile != null) {
-			propertyFiles.addFirst(userSetPropertyFile);
-		}
-
-		return propertyFiles;
+		return new ArrayList<>(propertyFileList);
 	}
 
 	private static Properties loadPropertiesFile(String propertiesFileName) throws IOException {
@@ -433,8 +404,5 @@ public class Configuration {
 		keySet.clear();
 		propertyFileList.clear();
 		commandLineArgs.clear();
-		System.clearProperty(CONFIG_FILE_STR);
-
-		Configuration.addKey(CONFIG_FILE_KEY);
 	}
 }
