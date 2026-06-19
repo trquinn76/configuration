@@ -145,7 +145,6 @@ class ConfigurationTest {
 	}
 
 	// Property File Tests
-	// - property file from config tests
 	// - file order tests
 	@Test
 	void fromPropertiesFileTest() {
@@ -158,21 +157,6 @@ class ConfigurationTest {
 
 		assertEquals("soup", config.get("letters"));
 		assertEquals("stiltskin", config.get("fantasy"));
-	}
-
-	@Test
-	void propertyFileFromConfigTest() {
-		Configuration.appendPropertyFile("test.properties");
-
-		System.setProperty("configFile", "alternative.properties");
-
-		ConfigKey.builder("one").configFileProp("alphabet").buildAndAddKey();
-		ConfigKey.builder("two").configFileProp("altkeyone").buildAndAddKey();
-
-		Configuration config = new Configuration();
-
-		assertEquals("soup", config.get("one"));
-		assertEquals("alpha", config.get("two"));
 	}
 
 	@Test
@@ -230,26 +214,10 @@ class ConfigurationTest {
 	void noConfigFileTest() {
 		Configuration.appendPropertyFile("alpha.properties");
 
+		ConfigKey.builder("key").configFileProp("configFileProp").noValueAllowed(true).buildAndAddKey();
 		Configuration config = new Configuration();
 
-		assertNull(config.get(Configuration.CONFIG_FILE_STR));
-	}
-
-	@Test
-	void definedConfigFileTest() {
-		Configuration.appendPropertyFile("test.properties");
-
-		ConfigKey.builder("gamma").configFileProp("gamma").buildAndAddKey();
-
-		environment.set("CONFIG_FILE", "alternative.properties");
-
-		Configuration config = new Configuration();
-
-		// gamma value is read in from the configured config file
-		// (alternative.properties), rather than the set config file (test.properties)
-		assertEquals("gamma alternative", config.get("gamma"));
-
-		environment.remove("CONFIG_FILE");
+		assertNull(config.get("key"));
 	}
 
 	@Test

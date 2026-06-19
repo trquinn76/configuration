@@ -12,7 +12,7 @@ repositories {
 
 group = 'io.github.trquinn76'
 
-version = '1.0.0'
+version = '1.0.1'
 
 dependencies {
     testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
